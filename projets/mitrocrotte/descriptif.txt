@@ -1,0 +1,11 @@
+Mitrocrotte doit devenir un système de microtrottoir simple et rapide à mettre en place pour un journal, remplaçant le trottoir par une mailing list.
+
+Il s'agit d'envoyer un formulaire de questions à une mailing list géolocalisée (ou triée selon un autre critère) et d'obtenir automatiquement une mise en forme des réponses
+
+SKILLS
+Envoyer des mails automatiquement avec lien et génération de mdp (probablement considéré comme du spam)
+
+INGREDIENTS
+- Une base de données avec le nom de l'interviewé, critère de tri, le mail, le mdp encrypté, *
+- Un formulaire 
+- Plusieurs templates de présentation des résultats (carte géolocalisée, menu select)

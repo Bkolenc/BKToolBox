@@ -1,0 +1,304 @@
+<!-- 
+Variables :
+Les visualisations geoserver (cite:communes-visu2)
+Points ou polygones ?
+Features
+
+-->
+<html>
+    <head>
+         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+   integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+   crossorigin=""/>
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <select>
+            <option value="cite:communes-visu2">Une map moche et bleue</option>
+            <option value="cite:cartelycees">Une map incroyable et colorée</option>
+        </select>
+        <div id="mapid"></div>
+    </body>
+    <style>
+        #mapid
+        {
+            height:70vh;
+            width:90%;
+            cursor:pointer;
+        }
+        .leaflet-fade-anim .leaflet-popup {
+  transition: none;
+}
+
+        .my-div-icon span{
+            display: inline-block;
+            color:red;
+            font-size:20px;
+            padding:3px;
+            border:solid 2px red;
+            border-radius:5px;
+            background-color:white;
+        }
+        .popup
+        {
+            display:inline-block;
+            width:200px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border:solid black 1px;
+            box-sizing: border-box;
+            position: relative;
+            left:10px;
+            top:20px;
+        }
+        .ptitre
+        {
+            box-sizing: border-box;
+            margin:0;
+            background-color:rgba(255, 255, 255, 0.8);
+            width:100%;
+            padding-left:5px;
+            color:red;
+        }
+        .popup p
+        {
+            box-sizing: border-box;
+            padding-left:5px;
+        }
+    </style>
+     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+   crossorigin=""></script>
+    <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+    <script>
+    // Création de la map toute grise, latitude, longitude, niveau de zoom
+            var myStyle = {
+        "color": "#ff7800",
+        "weight": 0.5,
+        "opacity": 0.65
+    };
+    var mymap = L.map('mapid').setView([47, -2], 6);
+        myIcon = L.divIcon({ className: 'my-div-icon', html: "<span>praout</span>" });
+   myMarker = L.marker([0 + 0.05, 0 - 0.05], { icon: myIcon }).addTo(mymap);
+   geojsonPolygon=L.geoJSON([[[[4.234001954445041,50.260825468513566],[4.236910878998077,50.26739208950211],[4.243388720343391,50.26559061604381]]]],{
+                        style: myStyle
+                    }).addTo(mymap);
+    // Installation
+    // Utiliser ce site pour trouver des maps gratos : http://leaflet-extras.github.io/leaflet-providers/preview/
+    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(mymap);
+        
+    var tileLayer=L.tileLayer.wms("http://localhost:8080/geoserver/cite/wms", {
+        layers: 'cite:communes-visu2',
+        format: 'image/png',
+        transparent: true
+    }).addTo(mymap);
+        
+        
+    $("select").change(function(){
+        mymap.removeLayer(tileLayer);
+        tileLayer=L.tileLayer.wms("http://localhost:8080/geoserver/cite/wms", {
+        layers: $("select").val(),
+        format: 'image/png',
+        transparent: true
+    }).addTo(mymap);
+    });
+    
+    
+    // Ajout de Marker
+    var marker = L.marker([51.5, -0.09]).addTo(mymap);
+        
+        
+    // Ajout de cercle
+    var circle = L.circle([51.508, -0.11], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 500
+    }).addTo(mymap);
+        
+    // Ajout de polygones
+    var polygon = L.polygon([
+        [51.509, -0.08],
+        [51.503, -0.06],
+        [51.51, -0.047]
+    ]).addTo(mymap);
+        
+    // Ajout d'une série de polygones
+        // Tableau de polygones :
+    var polygones = {
+        "carre1": [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [1, 0]
+        ],
+        "carre2": [
+            [0, 1],
+            [0, 2],
+            [1, 2],
+            [1, 1]
+        ],
+        "carre3": [
+            [13, 2],
+            [2, 10],
+            [10, 15]
+        ]
+    };
+        
+mymap.on('mousemove', function(e) {
+    var latClic=e.latlng.lat;
+    var lngClic=e.latlng.lng;
+    var communePopup="commune";
+
+    
+    $.ajax({   url:"cartes.php",
+        type:"POST",
+        data: "action=clicLycees&latClic="+latClic+"&lngClic="+lngClic,
+        dataType:'html',
+        success: function (data) {
+            var boobool=false;
+            var obj = JSON.parse(data);
+            if (obj.resultat.length==1)
+                {
+                    communePopup=obj.resultat[0].nom;
+//                    var popup = L.popup()
+//                                    .setLatLng([latClic, lngClic])
+//                                    .setContent(communePopup)
+//                                    .openOn(mymap);
+                    mymap.removeLayer(myMarker);
+                    myIcon = L.divIcon({ className: 'my-div-icon', html: "<div class='popup'><p class='ptitre'>Commune :</p><p>" + communePopup + "</p><p class='ptitre'>Reçus au bac :</p><p>"+obj.resultat[0].reussiteMoy+" %</p></div>" });
+                    myMarker = L.marker([latClic - 0, lngClic + 0], { icon: myIcon }).addTo(mymap);
+                    console.log(obj.resultat[0].geom);
+                    var polygon={
+                                  "type": "Feature",
+                                  "geometry": {
+                                    "type": "MultiPolygon",
+                                    "coordinates":JSON.parse(obj.resultat[0].geom),
+                                  },
+                                  "properties": {
+                                    "name": "MultiPolygon",
+                                    "style": {
+                                        color: "black",
+                                        opacity: 1,
+                                        fillColor: "red",
+                                        fillOpacity: 1
+                                    }
+                                  }
+                                };
+                    geojsonPolygon.clearLayers();
+                    geojsonPolygon=L.geoJSON(polygon,{
+                        style: myStyle
+                    }).addTo(mymap);
+                }
+            else
+                {
+                    for(var i=0; i<obj.resultat.length; i++)
+                    {
+                        var geometry=JSON.parse(obj.resultat[i].geom);
+                        for(j=0; j<geometry.length; j++)
+                        {
+                            //Gerer les communes enclavées avec une autre boucle
+                            for(var k=0; k<geometry[j].length; k++)
+                            {
+                                   if(k==0)
+                                    {
+                                        boobool=IsPointInPolygon(geometry[j][k], [lngClic, latClic]);
+                                    }
+                                    else
+                                    {
+                                        boobool=!IsPointInPolygon(geometry[j][k], [lngClic, latClic]);    
+                                    }
+                            }
+                            
+                            if(boobool)
+                                {
+
+                                    communePopup=obj.resultat[i].nom;
+//                                    var popup = L.popup()
+//                                    .setLatLng([latClic, lngClic])
+//                                    .setContent(communePopup)
+//                                    .openOn(mymap);
+                                    
+                                    mymap.removeLayer(myMarker);
+                                    myIcon = L.divIcon({ className: 'my-div-icon', html: "<div class='popup'><p class='ptitre'>Commune :</p><p>" + communePopup + "</p><p class='ptitre'>Réussite moyenne au bac :</p><p>"+obj.resultat[i].reussiteMoy+" %</p></div>" });
+                                    myMarker = L.marker([latClic - 0, lngClic + 0], { icon: myIcon }).addTo(mymap);
+                                    
+                                    //arrêt de la boucle
+                                    j=geometry.length;
+                                    i=obj.resultat.length;
+                                    
+                                      var polygon=  {
+                                                        "type": "Feature",
+                                                        "geometry": {
+                                                            "type": "MultiPolygon",
+                                                            "coordinates":geometry, 
+                                                        },
+                                                        "properties": {
+                                                            "name": "MultiPolygon",
+                                                            "style": {
+                                                                color: "black",
+                                                                opacity: 1,
+                                                                fillColor: "white",
+                                                                fillOpacity: 1
+                                                            }
+                                                        }
+                                                    };
+                                    geojsonPolygon.clearLayers();
+                                    geojsonPolygon=L.geoJSON(polygon,{
+                                        style: myStyle
+                                    }).addTo(mymap);
+                                }
+                        }
+                    }
+                }
+
+            
+            
+                },
+        error: function(data){
+            console.log("prout");
+        }
+    }); 
+});
+        
+    // Ajout par boucle sur la carte de tous les polygones
+    $.each(polygones, function(key, val){
+        
+        // Nommage dynamique
+         window["polygone"+key]=L.polygon(val).addTo(mymap);
+        // Ajout dynamique du popup
+        window["polygone"+key].bindPopup("<h2> Nom du polygone : </h2><p>"+key+"</p>");
+    });
+    console.log(polygonecarre3);
+    console.log(polygones);
+                            
+                            
+    function IsPointInPolygon(poly_array, test_point) 
+    {
+        var inside = false;
+        var test_x = test_point[0];
+        var test_y = test_point[1];
+        for(var i=0; i<(poly_array.length-1); i++) {
+            var p1_x = poly_array[i][0];
+            var p1_y = poly_array[i][1];
+            var p2_x = poly_array[i+1][0];
+            var p2_y = poly_array[i+1][1];
+            if((p1_y<test_y && p2_y>=test_y) || (p2_y<test_y && p1_y>=test_y)) { // this edge is crossing the horizontal ray of testpoint
+                if((p1_x+(test_y-p1_y)/(p2_y-p1_y)*(p2_x-p1_x)) < test_x) { // checking special cases (holes, self-crossings, self-overlapping, horizontal edges, etc.)
+                    inside=!inside;
+                }
+            }
+        }
+        return inside;
+    }
+        
+        
+    </script>
+</html>
+

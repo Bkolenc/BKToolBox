@@ -1,0 +1,66 @@
+OK - Trouver le plus gros polygone dans chaque geometry. Prendre son centroid comme centre.
+- Vérifier si le rayon de 0.3 est pertinent.
+- Au clic, prendre tous les centres à 0,3 de latitude et de longitude, chercher tous les polygones correspondants, vérifier si 
+
+
+POINTS A TESTER
+45.331813, 0.505491
+
+0.5004087179136882
+45.33866377094234
+
+43.347977, 4.664889
+
+45.733062, 0.452974
+
+45.663697, 5.827961
+
+47.582192, 5.087497
+
+47.790581, -0.129991
+
+48.824018, 0.511260
+
+48.377780, -4.941536
+
+48.795390, -3.609075
+
+43.392653, -1.153702
+
+47.140902, 3.911286
+
+47.977349, 0.662855
+
+SELECT nom, ( 6371 * acos( cos( radians(48.369846) ) * cos( radians( centreLat ) ) 
+   * cos( radians(centreLng) - radians(2.562135)) + sin(radians(48.369846)) 
+   * sin( radians(centreLat)))) AS distance
+FROM `communes` 
+WHERE 	centreLng < 2.562135 +0.3
+AND 	centreLng > 2.562135 -0.3
+AND 	centreLat < 48.369846 +0.3
+AND 	centreLat > 48.372040 -0.3
+ORDER BY distance
+LIMIT 10
+
+48.372040, 2.565827
+
+
+SELECT * FROM `communes`
+WHERE minLat < 48.372040
+AND maxLat > 48.372040
+AND minLat < 2.565827
+AND maxLat > 2.565827
+
+
+48.369846, 2.562135
+43.511514, 
+
+SELECT 
+  nom, 
+   ( 6371 * acos( cos( radians(42.290763) ) * cos( radians( centreLat ) ) 
+   * cos( radians(centreLng) - radians(-71.35368)) + sin(radians(42.290763)) 
+   * sin( radians(centreLat)))) AS distance 
+FROM locations 
+WHERE active = 1 
+HAVING distance < 10 
+ORDER BY distance;

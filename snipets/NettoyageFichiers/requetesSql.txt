@@ -1,0 +1,5 @@
+
+1 : Créer une vue avec SELECT (sum(EffectifsReussite) / sum(EEnsembleDesSeries) * 100) 
+FROM lycees4 GROUP BY insee
+
+2 : UPDATE `cartelycees` SET reussiteMoy = (SELECT reussite FROM vuelycees2 WHERE vuelycees2.insee=cartelycees.insee)

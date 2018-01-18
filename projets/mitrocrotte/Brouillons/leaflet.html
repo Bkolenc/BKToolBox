@@ -1,0 +1,90 @@
+<html>
+    <head>
+         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+   integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+   crossorigin=""/>
+        
+    </head>
+    <body>
+        <div id="mapid"></div>
+    </body>
+    <style>
+        #mapid
+        {
+            height:400px;
+            width:400px;
+        }
+    </style>
+     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+   crossorigin=""></script>
+    <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+    <script>
+    // Création de la map toute grise, latitude, longitude, niveau de zoom
+    var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+    
+    // Installation
+    // Utiliser ce site pour trouver des maps gratos : http://leaflet-extras.github.io/leaflet-providers/preview/
+    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(mymap);
+        
+    // Ajout de Marker
+    var marker = L.marker([51.5, -0.09]).addTo(mymap);
+        
+    // Ajout de cercle
+    var circle = L.circle([51.508, -0.11], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 500
+    }).addTo(mymap);
+        
+    // Ajout de polygones
+    var polygon = L.polygon([
+        [51.509, -0.08],
+        [51.503, -0.06],
+        [51.51, -0.047]
+    ]).addTo(mymap);
+        
+    // Ajout d'une série de polygones
+        // Tableau de polygones :
+    var polygones = {
+        "carre1": [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [1, 0]
+        ],
+        "carre2": [
+            [0, 1],
+            [0, 2],
+            [1, 2],
+            [1, 1]
+        ],
+        "carre3": [
+            [13, 2],
+            [2, 10],
+            [10, 15]
+        ]
+    };
+        
+    // Ajout par boucle sur la carte de tous les polygones
+    $.each(polygones, function(key, val){
+        
+        // Nommage dynamique
+         window["polygone"+key]=L.polygon(val).addTo(mymap);
+        // Ajout dynamique du popup
+        window["polygone"+key].bindPopup("<h2> Nom du polygone : </h2><p>"+key+"</p>");
+    });
+    console.log(polygonecarre3);
+    console.log(polygones);
+        
+        
+    </script>
+</html>
